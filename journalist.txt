@@ -1,0 +1,10 @@
+journalist
+news
+interview
+magzine
+paper
+broadcast
+achievement
+tragedy
+award
+opinion

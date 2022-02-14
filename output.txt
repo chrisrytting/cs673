@@ -1,0 +1,16 @@
+Prompt: The potato
+Target words group: journalist
+
+= Unperturbed generated text =
+<|endoftext|>The potato plant is a member of the cabbage family, but is also a member of the mustard family, and is sometimes confused with mustard. It is not edible.
+
+A potato has the same color, appearance and taste of any of these vegetables.
+
+
+= Perturbed generated text 1 =
+<|endoftext|>The potato was one the first items to hit the news when it was announced that the Food Network's "Top Chef" would be switching from its current format to a digital format in the summer. The switch came after several years of debate over the broadcast's format
+
+= Perturbed generated text 2 =
+<|endoftext|>The potato is the only vegetable on the market that contains the essential amino acids essentialylic acid and phenylalanine. The protein in potatoes has also attracted controversy.
+
+In one study, the researchers fed rats a mixture of protein and carbohydrates to see
