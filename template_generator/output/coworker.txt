@@ -1,0 +1,10 @@
+employee
+employer
+job
+democracy
+company
+salary
+gratuity
+workmate
+piecework
+commission

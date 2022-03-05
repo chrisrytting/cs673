@@ -1,0 +1,10 @@
+poetry
+writer
+author
+poet laureate
+historian
+novelist
+essayist
+lyricist
+dramatist
+literary
