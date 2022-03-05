@@ -16,16 +16,12 @@ class Subject():
             self.occupation = "Software Engineer"
             self.residence = "New York"
         else:
-            print("What is your name?")
-            self.name = input()
-            print("Where are you from originally?")
-            self.origin = input()
-            print("How old are you?")
-            self.age = input()
-            print("Where do you live now?")
-            self.residence = input()
-            print("What do you do for work?")
-            self.occupation = input()
+            self.name = input("What is your name? ")
+            self.origin = input("Where are you from originally? ")
+            self.age = input("How old are you? ")
+            self.residence = input("Where do you live now? ")
+            self.occupation = input("What do you do for work? ")
+            
 
     def print_backstory(self):
         return (f"This is an interview with {self.name}. "
@@ -35,7 +31,7 @@ class Subject():
 
 class Interview():
     def __init__(self, interviewer_style, pplm=False):
-        self.subject = Subject(dry_run=True)
+        self.subject = Subject(dry_run=False) # change dry run to True if you want default responses
 
         self.templates = {
             "biographer": lambda subject_name, question, answer: (f"I'm a biographer, and when I asked "
@@ -67,7 +63,7 @@ class Interview():
         soul_searching_questions = [
             "What do you like to do for fun?",
             "What is the most important thing that ever happened to you?",
-            "What is the accomplishment your are most proud of?",
+            "What is the accomplishment you are most proud of?",
             "Who is the person you admire the most?",
             "What is the thing you would tell an 18-year old version of yourself?",
             "What are your greatest passions in life?",
@@ -79,14 +75,14 @@ class Interview():
         conversation = []
         for question in soul_searching_questions:
             print(question)
-            # answer = input()
-            answer = "frolick"
+            answer = input()
+            # answer = "frolick"
             conversation.append((question, answer))
             backstory = self.subject.print_backstory()
             prompt = template(self.subject.name, question, answer)
             prompt = "\n\n".join((backstory, prompt))
             print(prompt)
-            breakpoint()
+            # breakpoint()
             response = openai.Completion.create(
                 engine="davinci", prompt=question)
             print(response.choices[0].text)
