@@ -705,6 +705,7 @@ def run_pplm_example(
         colorama=False,
         verbosity='regular'
 ):
+    all_generated_text = []
     # set Random seed
     torch.manual_seed(seed)
     np.random.seed(seed)
@@ -843,6 +844,13 @@ def run_pplm_example(
         generated_texts.append(
             (tokenized_cond_text, pert_gen_tok_text, unpert_gen_tok_text)
         )
+        all_generated_text.append(pert_gen_text)
+        all_generated_text.append('\n----------------------------------------------------\n')
+    
+    with open("pplm_output.txt", "w") as f:
+        for t in all_generated_text:
+            f.write(t)
+        f.close()
 
     return
 
