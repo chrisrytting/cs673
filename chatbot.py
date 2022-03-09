@@ -17,6 +17,7 @@ class Subject:
             self.age = "30"
             self.residence = "New York"
             self.occupation = "Software Engineer"
+            print("\nDoing a dry run. Auto-populating background info.")
         else:
             print("What is your name?")
             self.name = input()
@@ -34,7 +35,7 @@ class Subject:
         )
 
     def print_backstory(self):
-        """Convert the subject's info to a descriptive natural language pargraph"""
+        """Convert the subject's info to a descriptive natural language paragraph"""
         return (
             f"This is an interview with {self.name}. "
             f"{self.name} is {self.age} years old and is from {self.origin} originally. "
