@@ -1,0 +1,10 @@
+grandmaster
+master
+zen
+clergy
+accountant
+lawyer
+physician
+politician
+novelist
+musician
