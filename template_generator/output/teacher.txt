@@ -1,0 +1,10 @@
+tutor
+school
+college
+university
+education
+instructor
+classroom
+educator
+schoolteacher
+pedagogy

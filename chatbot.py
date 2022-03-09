@@ -88,7 +88,7 @@ class Interview:
         soul_searching_questions = [
             "What do you like to do for fun?",
             "What is the most important thing that ever happened to you?",
-            "What is the accomplishment your are most proud of?",
+            "What is the accomplishment you are most proud of?",
             "Who is the person you admire the most?",
             "What is the thing you would tell an 18-year old version of yourself?",
             "What are your greatest passions in life?",
