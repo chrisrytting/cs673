@@ -100,10 +100,12 @@ class Interview:
         template = self.templates[self.interviewer_style]
         conversation = []
         for question in soul_searching_questions:
-            print(question, "\n(You can say 'pass' to skip this question)")
+            print(question, "\n(You can say 'pass' to skip this question or 'exit' to skip all questions)")
             answer = input()
             if answer == "pass":
                 continue
+            elif answer == "exit":
+                break
             conversation.append((question, answer))
             backstory = self.subject.print_backstory()
             prompt = template(self.subject.name, question, answer)
@@ -112,10 +114,10 @@ class Interview:
             if dry_run:
                 gpt3_followup = "I'm a bot, and I don't know what to say."
             else:
-                response = openai.Completion.create(engine="davinci", prompt=question)
+                response = openai.Completion.create(engine="text-davinci-001", prompt=prompt)
                 gpt3_followup = response.choices[0].text
             print(gpt3_followup)
         print("Thanks for the interview! It was nice getting to know you!")
 
 
-interview = Interview("biographer", dry_run=True)
+interview = Interview("biographer", dry_run=False)
