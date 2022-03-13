@@ -1,0 +1,37 @@
+<|endoftext|>Hao is a student and he loves video games \nQ: What question does a journalist want to ask Hao? \nA: Why did the developers make such a bad game? Hao has been playing this type of game for quite a while now and he loves it very much. \nA: I would like to ask you some questions. How old were you when you     
+100%|############################################################################################################################| 50/50 [00:11<00:00,  4.52it/s]================================================================================
+= Unperturbed generated text =
+<|endoftext|>Hao is a student and he loves video games \nQ: What question does a journalist want to ask Hao? \nA: How is your school working? What kind of school is your school? How is your life? \nQ: Is there a particular game you've played? Hao: I don't have any particular favorite \NQ: How did you find
+
+= Perturbed generated text 1 =
+<|endoftext|>Hao is a student and he loves video games \nQ: What question does a journalist want to ask Hao? \nA: It depends, but one thing that we're looking for are some of the games you are most excited about. \nQ: What kind of games? \nA: I'm a big fan of Zelda and I want to play Zelda games for
+
+= Perturbed generated text 2 =
+<|endoftext|>Hao is a student and he loves video games \nQ: What question does a journalist want to ask Hao? \nA: "How did we get here?" \nA: "We have the answers." \nA: "We are here!" \nQ: What do you mean you have the answers? \n: "We can show you the answers now
+
+= Perturbed generated text 3 =
+<|endoftext|>Hao is a student and he loves video games \nQ: What question does a journalist want to ask Hao? \nA: "Do you think video games have an impact on society?\nQ: I've read a lot of news about video games and I've noticed the negative things people say about the medium. What do you think? Do you think the medium 
+is
+
+= Perturbed generated text 4 =
+<|endoftext|>Hao is a student and he loves video games \nQ: What question does a journalist want to ask Hao? \nA: "What is the most popular game in QWERTY?" Hao 
+is an enthusiastic and energetic student. His hobbies include reading about science fiction (science fiction, fantasy, sci-fi, steampunk, etc.), gaming, music (rock, metal
+
+= Perturbed generated text 5 =
+<|endoftext|>Hao is a student and he loves video games \nQ: What question does a journalist want to ask Hao? \nA: "Is it better to be a hero or a coward?" Q: Hao's name is "Hao" \n: Hao is a student and he loves video games \nQ: What would he do if he had a choice?
+
+= Perturbed generated text 6 =
+<|endoftext|>Hao is a student and he loves video games \nQ: What question does a journalist want to ask Hao? \nA: I'd love to be asked "what the hell are you doing in my life?" \nQ: What do you want your future to hold \nA: I'm a game developer so I want to be involved with future games. I want
+
+= Perturbed generated text 7 =
+<|endoftext|>Hao is a student and he loves video games \nQ: What question does a journalist want to ask Hao? \nA: I want to know how to get the best out of this 
+game, why I should buy this game, why it would benefit me if I did. Q: What is this game called? \nA: This game is "The Great Game"
+
+= Perturbed generated text 8 =
+<|endoftext|>Hao is a student and he loves video games \nQ: What question does a journalist want to ask Hao? \nA: He wants to ask about his future. Hao: It's very interesting. If we were to do this again, I would want to know about the future of the future of my family and what will happen to me.\nQ: How
+
+= Perturbed generated text 9 =
+<|endoftext|>Hao is a student and he loves video games \nQ: What question does a journalist want to ask Hao? \nA: What's his hobby? \nQ: He'll answer your question \u2014 Q: What is your favorite game? A: Final Fantasy IV \u201cQ: What is the worst thing that could have happened? A: If you
+
+= Perturbed generated text 10 =
+<|endoftext|>Hao is a student and he loves video games \nQ: What question does a journalist want to ask Hao? \nA: Why did the developers make such a bad game? Hao has been playing this type of game for quite a while now and he loves it very much. \nA: I would like to ask you some questions. How old were you when you
