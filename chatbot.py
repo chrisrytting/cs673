@@ -114,9 +114,29 @@ class Interview:
             if dry_run:
                 gpt3_followup = "I'm a bot, and I don't know what to say."
             else:
-                response = openai.Completion.create(engine="text-davinci-001", prompt=prompt)
+                response = openai.Completion.create(engine="text-davinci-001", prompt=prompt, max_tokens=64, stop=["."])
                 gpt3_followup = response.choices[0].text
-            print(gpt3_followup)
+            print(gpt3_followup + ".\n")
+            # Follow-up. Starting with 1 question and 1 analysis for now.
+            follow_up_question = "I then asked " + self.subject.name + " the following question: \""
+            if dry_run:
+                follow_up_question += " absolutely nothing. "
+            else:
+                follow_up_question += openai.Completion.create(engine="text-davinci-001", prompt=prompt + gpt3_followup + follow_up_question, max_tokens=64, stop=["?\""]).choices[0].text
+            print(follow_up_question + "?\"\n")
+            follow_up_answer = ""
+            if dry_run:
+                follow_up_answer += "And I did not run an analysis."
+            else:
+                answer_from_user = input("\n")
+                if answer_from_user == "pass":
+                    continue
+                elif answer_from_user == "exit":
+                    break
+                follow_up_answer += follow_up_question + " and their response was '" + answer_from_user + "' When I heard that, I thought"
+                follow_up_answer += openai.Completion.create(engine="text-davinci-001", prompt=follow_up_answer, max_tokens=64, stop=["."]).choices[0].text
+            print(follow_up_answer + ".\n")
+
         print("Thanks for the interview! It was nice getting to know you!")
 
 
