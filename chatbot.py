@@ -1,11 +1,13 @@
 import openai
 import os
+import sys
 
 try:
     openai.api_key = os.environ["OPENAI_API_KEY"]
 except:
     print("OpenAI API key not set")
 
+num_args = len(sys.argv)
 
 class Subject:
     """Class for getting to know the subject's background info"""
@@ -19,16 +21,11 @@ class Subject:
             self.occupation = "Software Engineer"
             print("\nDoing a dry run. Auto-populating background info.")
         else:
-            print("What is your name?")
-            self.name = input()
-            print("Where are you from originally?")
-            self.origin = input()
-            print("How old are you?")
-            self.age = input()
-            print("Where do you live now?")
-            self.residence = input()
-            print("What do you do for work?")
-            self.occupation = input()
+            self.name = input("What is your name? ")
+            self.origin = input("Where are you from originally? ")
+            self.age = input("How old are you? ")
+            self.residence = input("Where do you live now? ")
+            self.occupation = input("What do you do for work? ")
 
         print(
             "\n\nGreat, that's all really helpful to know. Let's get started on the interview!\n\n"
@@ -45,6 +42,9 @@ class Subject:
 
 class Interview:
     def __init__(self, interviewer_style, pplm=False, dry_run=False):
+        # Dry run as a CLI parameter.
+        if num_args > 1 and sys.argv[1] == "dry_run":
+            dry_run = True
         self.subject = Subject(dry_run=dry_run)
 
         self.templates = {
@@ -118,12 +118,14 @@ class Interview:
                 gpt3_followup = response.choices[0].text
             print(gpt3_followup + ".\n")
             # Follow-up. Starting with 1 question and 1 analysis for now.
-            follow_up_question = "I then asked " + self.subject.name + " the following question: \""
+            follow_up_question = "I then asked " + self.subject.name
             if dry_run:
                 follow_up_question += " absolutely nothing. "
+                print(follow_up_question)
             else:
+                follow_up_question += " the following question: \""
                 follow_up_question += openai.Completion.create(engine="text-davinci-001", prompt=prompt + gpt3_followup + follow_up_question, max_tokens=64, stop=["?\""]).choices[0].text
-            print(follow_up_question + "?\"\n")
+                print(follow_up_question + "?\"\n")
             follow_up_answer = ""
             if dry_run:
                 follow_up_answer += "And I did not run an analysis."
@@ -135,7 +137,8 @@ class Interview:
                     break
                 follow_up_answer += follow_up_question + " and their response was '" + answer_from_user + "' When I heard that, I thought"
                 follow_up_answer += openai.Completion.create(engine="text-davinci-001", prompt=follow_up_answer, max_tokens=64, stop=["."]).choices[0].text
-            print(follow_up_answer + ".\n")
+            print("\n" + follow_up_answer + ".\n")
+            print("_______________________________\n")
 
         print("Thanks for the interview! It was nice getting to know you!")
 
