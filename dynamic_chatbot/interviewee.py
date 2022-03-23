@@ -15,6 +15,8 @@ class Interviewee:
         self.name = self.extract_name()
         self.where_from = self.extract_where_from()
         self.age = self.extract_age()
+        self.residence = self.extract_residence()
+        self.occupation = self.extract_occupation()
 
     # abstract these 3 out to another class
     def remove_punctuation(self, str):
@@ -26,6 +28,11 @@ class Interviewee:
     def remove_quotes(self, str):
         return str.replace('"' , "")
 
+    def remove_newlines_only(self, str):
+        return str.strip().replace('\n', '')
+
+    # the purpose of these functions is using GPT-3 to dynamically select the attribute based on the user input, instead of grabbing it verbatim.
+    # so if the user says "I'm Alex", the chatbot will refer to them as "Alex", minus the "I'm".
     def extract_name(self):
         name_prompt = "I'm a biographer, and I'm interviewing someone. I asked them what their name was, and they said \"" + self.name + ".\" I responded in one word -- their name is \""
         dynamic_name = self.ai_interface.call_openai(name_prompt, [".\"", "."])
@@ -50,3 +57,16 @@ class Interviewee:
         # invalid age handling?
         print("This is the dynamic age: " + dynamic_age)
         return dynamic_age
+
+    def extract_residence(self):
+        residence_prompt = "I'm a biographer, and I'm interviewing " + self.name + ". I asked them where they are currently living, and they said \"" + self.residence + "\" From this, I determined that " + self.name + " is from the following location:"
+        dynamic_residence = self.ai_interface.call_openai(residence_prompt, [".\"", ".", "!"])
+        dynamic_residence = self.remove_newlines_only(dynamic_residence)
+        print("This is dynamic residence: " + dynamic_residence)
+        return dynamic_residence
+
+    def extract_occupation(self):
+        occupation_prompt = "I'm a biographer, and I'm interviewing " + self.name + ". I asked them what their occupation was, and they said " + self.occupation + ". " + "I can summarize their career in three words or less: " + self.name + " is a"
+        dynamic_occupation = self.ai_interface.call_openai(occupation_prompt, [".\"", ".", "!"])
+        print("This is the dynamic occupation: " + dynamic_occupation)
+        return dynamic_occupation
