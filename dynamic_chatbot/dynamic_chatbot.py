@@ -12,6 +12,12 @@ num_args = len(sys.argv)
 
 def run_interview():
     interview_subject = interviewee.Interviewee()
+    interview_subject.summarize_person()
+    run_background_exchange()
+
+# Casual conversation about their background info, dynamic back-and-forth
+def run_background_exchange():
+    pass
 
 # Begin
 run_interview()
