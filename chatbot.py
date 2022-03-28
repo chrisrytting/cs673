@@ -1,51 +1,43 @@
-import openai
 import os
+from lmsampler import LMSampler
+from subject import Subject
+from pdb import set_trace as breakpoint
 
-try:
-    openai.api_key = os.environ["OPENAI_API_KEY"]
-except:
-    print("OpenAI API key not set")
-
-
-class Subject:
-    """Class for getting to know the subject's background info"""
-
-    def __init__(self, dry_run=False):
-        if dry_run:
-            self.name = "Chris"
-            self.origin = "Orem"
-            self.age = "30"
-            self.residence = "New York"
-            self.occupation = "Software Engineer"
-            print("\nDoing a dry run. Auto-populating background info.")
-        else:
-            print("What is your name?")
-            self.name = input()
-            print("Where are you from originally?")
-            self.origin = input()
-            print("How old are you?")
-            self.age = input()
-            print("Where do you live now?")
-            self.residence = input()
-            print("What do you do for work?")
-            self.occupation = input()
-
-        print(
-            "\n\nGreat, that's all really helpful to know. Let's get started on the interview!\n\n"
-        )
-
-    def print_backstory(self):
-        """Convert the subject's info to a descriptive natural language paragraph"""
-        return (
-            f"This is an interview with {self.name}. "
-            f"{self.name} is {self.age} years old and is from {self.origin} originally. "
-            f"{self.name} lives in {self.residence}, and their occupation is {self.occupation}."
-        )
-
-
-class Interview:
-    def __init__(self, interviewer_style, pplm=False, dry_run=False):
+class SoulSearcher:
+    def __init__(self, interviewer_style, lm = 'gpt2', temperature = 0.7, pplm=False, dry_run=False):
+        """
+        interviewer_style: str - which persona SoulSearcher uses to analyze/question the subject
+            'biographer'
+            'mother'
+            'journalist'
+            'poet'
+            'manager'
+            'grandfather'
+        lm: str - which language model to use
+            'gpt2'
+            'gpt2-medium'
+            'gpt2-large'
+            'gpt2-xl'
+            'distilgpt2'
+            'EleutherAI/gpt-j-6B'
+            'EleutherAI/gpt-neo-2.7B'
+            'EleutherAI/gpt-neo-1.3B'
+            'EleutherAI/gpt-neo-125M'
+            'j1-jumbo'             #Jurassic
+            'j1-large' 
+            'gpt3-ada'
+            'gpt3-babbage'
+            'gpt3-curie'
+            'gpt3-davinci'
+            'gpt3-text-davinci-001'
+            'gpt3-text-davinci-002'
+        temperature: float between 0 and 1
+        pplm: bool - whether to use plug and play language model by Uber AI
+        dry_run: bool - whether to use the real model or not
+        """
         self.subject = Subject(dry_run=dry_run)
+        self.lm = lm
+        self.temperature = temperature
 
         self.templates = {
             "biographer": lambda subject_name, question, answer: (
@@ -86,6 +78,8 @@ class Interview:
         self.carry_out_interview(dry_run=dry_run)
 
     def carry_out_interview(self, dry_run=False):
+        model = LMSampler(self.lm)
+        breakpoint()
         soul_searching_questions = [
             "What do you like to do for fun?",
             "What is the most important thing that ever happened to you?",
@@ -118,4 +112,5 @@ class Interview:
         print("Thanks for the interview! It was nice getting to know you!")
 
 
-interview = Interview("biographer", dry_run=True)
+if __name__=="__main__":
+    soulsearcher = SoulSearcher("biographer", lm='gpt2-xl', dry_run=True)
