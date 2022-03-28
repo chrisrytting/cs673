@@ -35,16 +35,29 @@ class SoulSearcher:
         pplm: bool - whether to use plug and play language model by Uber AI
         dry_run: bool - whether to use the real model or not
         """
+        if num_args > 1 and sys.argv[1] == "dry_run":
+            dry_run = True
         self.subject = Subject(dry_run=dry_run)
         self.lm = lm
         self.temperature = temperature
 
+        self.analysis_question_config = analysis_question_config
+        self.analysis_question_config_dict = {"analysis": [
+            "analysis"], "question": ["question"], "both": ["analysis", "question"]}
+
         self.templates = {
-            "biographer": lambda subject_name, question, answer: (
-                f"I'm a biographer, and when I asked "
-                f"{subject_name} '{question}', they told me '{answer}'. "
-                f"When I heard that, I thought"
-            ),
+            "biographer": {
+                "analysis": lambda subject_name, question, answer: (
+                    f"I'm a biographer, and when I asked "
+                    f"{subject_name} '{question}', they told me '{answer}'. "
+                    f"When I heard that, I wanted to tell them"
+                ),
+                "question": lambda subject_name, question, answer: (
+                    f"I'm a biographer, and when I asked "
+                    f"{subject_name} '{question}', they told me '{answer}'. "
+                    f"When I heard that, I wanted to ask them the question \""
+                ),
+            },
             "mother": lambda subject_name, question, answer: (
                 f"I'm {subject_name}'s mother, and when I asked them "
                 f"'{question}', they told me '{answer}'. "
@@ -80,6 +93,8 @@ class SoulSearcher:
     def carry_out_interview(self, dry_run=False):
         model = LMSampler(self.lm)
         breakpoint()
+        analysis_question_config = self.analysis_question_config
+
         soul_searching_questions = [
             "What do you like to do for fun?",
             "What is the most important thing that ever happened to you?",
@@ -93,22 +108,64 @@ class SoulSearcher:
 
         template = self.templates[self.interviewer_style]
         conversation = []
+
+        # Options to present to messenger/subject after soul-searcher has asked a question
+        q_options = """
+        Options:
+        "pass" - Skip this question
+        "end" - End the interview
+        """
+
+        # Options to present to messenger after soul-searcher has weighed in on subject's response to question
+        a_options = """
+        Options:
+        Press enter to continue, else type
+        "again" - to have soul-searcher resample the analysis / question
+        "analysis" - to force soul-searcher to offer analysis instead of asking a follow-up question
+        "question" - to force soul-searcher to offer a follow-up question instead of offering an analysis
+        "both" - to have soul-searcher offer both an analysis and a follow-up question
+        """
         for question in soul_searching_questions:
-            print(question, "\n(You can say 'pass' to skip this question)")
+            print(
+                question, q_options)
             answer = input()
             if answer == "pass":
                 continue
+            elif answer == "end":
+                break
             conversation.append((question, answer))
             backstory = self.subject.print_backstory()
-            prompt = template(self.subject.name, question, answer)
-            prompt = "\n\n".join((backstory, prompt))
-            print(prompt)
-            if dry_run:
-                gpt3_followup = "I'm a bot, and I don't know what to say."
-            else:
-                response = openai.Completion.create(engine="davinci", prompt=question)
-                gpt3_followup = response.choices[0].text
-            print(gpt3_followup)
+            while True:
+                # TODO pass in prompt according to analysis_question_config
+                for answer_type in self.analysis_question_config_dict[analysis_question_config]:
+                    prompt = template[answer_type](
+                        self.subject.name, question, answer)
+                    if dry_run:
+                        gpt3_followup = "I'm a bot, and I don't know what to say."
+                    else:
+                        response = openai.Completion.create(
+                            engine="text-davinci-002", prompt=prompt, max_tokens=64, stop=["\n"])
+                        gpt3_followup = response.choices[0].text
+                    print(
+                        f"Prompt: {prompt}\n\n{answer_type}: {gpt3_followup}")
+                    breakpoint()
+                print(a_options)
+                messenger_input = input()
+                if messenger_input == "":
+                    break
+                elif messenger_input == "again":
+                    continue
+                elif messenger_input == "analysis":
+                    analysis_question_config = "analysis"
+                    continue
+                elif messenger_input == "question":
+                    analysis_question_config = "question"
+                    continue
+                elif messenger_input == "both":
+                    analysis_question_config = "both"
+                    continue
+            print("_______________________________\n")
+
         print("Thanks for the interview! It was nice getting to know you!")
 
 
