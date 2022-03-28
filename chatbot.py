@@ -59,7 +59,7 @@ class Interview:
                 "analysis": lambda subject_name, question, answer: (
                     f"I'm a biographer, and when I asked "
                     f"{subject_name} '{question}', they told me '{answer}'. "
-                    f"When I heard that, I thought"
+                    f"When I heard that, I wanted to tell them"
                 ),
                 "question": lambda subject_name, question, answer: (
                     f"I'm a biographer, and when I asked "
