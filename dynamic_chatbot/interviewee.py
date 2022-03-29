@@ -57,4 +57,4 @@ class Interviewee:
 
     def summarize_person(self):
         print("\nThanks, that's all great info!\n")
-        print("\nFor the records: I will be interviewing " + self.name + " today. " + self.name + " is " + self.age + " years old and is from " + self.where_from + " originally. They now live in " + self.residence + " and their occupation is " + self.occupation + ".\n")
+        print("\nGoing on record: I will be interviewing " + self.name + " today. " + self.name + " is " + self.age + " years old and is from " + self.where_from + " originally. They now live in " + self.residence + " and their occupation is " + self.occupation + ".\n")
