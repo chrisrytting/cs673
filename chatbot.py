@@ -3,8 +3,18 @@ from lmsampler import LMSampler
 from subject import Subject
 from pdb import set_trace as breakpoint
 
+
 class SoulSearcher:
-    def __init__(self, interviewer_style, lm = 'gpt2', temperature = 0.7, pplm=False, dry_run=False):
+    def __init__(
+        self,
+        interviewer_style,
+        lm="gpt2",
+        temperature=0.7,
+        pplm=False,
+        bio_dry_run=False,
+        dry_run=False,
+        analysis_question_config="both",
+    ):
         """
         interviewer_style: str - which persona SoulSearcher uses to analyze/question the subject
             'biographer'
@@ -24,7 +34,7 @@ class SoulSearcher:
             'EleutherAI/gpt-neo-1.3B'
             'EleutherAI/gpt-neo-125M'
             'j1-jumbo'             #Jurassic
-            'j1-large' 
+            'j1-large'
             'gpt3-ada'
             'gpt3-babbage'
             'gpt3-curie'
@@ -35,15 +45,16 @@ class SoulSearcher:
         pplm: bool - whether to use plug and play language model by Uber AI
         dry_run: bool - whether to use the real model or not
         """
-        if num_args > 1 and sys.argv[1] == "dry_run":
-            dry_run = True
-        self.subject = Subject(dry_run=dry_run)
-        self.lm = lm
+        self.model = LMSampler(lm)
+        self.subject = Subject(dry_run=bio_dry_run)
         self.temperature = temperature
 
         self.analysis_question_config = analysis_question_config
-        self.analysis_question_config_dict = {"analysis": [
-            "analysis"], "question": ["question"], "both": ["analysis", "question"]}
+        self.analysis_question_config_dict = {
+            "analysis": ["analysis"],
+            "question": ["question"],
+            "both": ["analysis", "question"],
+        }
 
         self.templates = {
             "biographer": {
@@ -55,7 +66,7 @@ class SoulSearcher:
                 "question": lambda subject_name, question, answer: (
                     f"I'm a biographer, and when I asked "
                     f"{subject_name} '{question}', they told me '{answer}'. "
-                    f"When I heard that, I wanted to ask them the question \""
+                    f'When I heard that, I wanted to ask them the question "'
                 ),
             },
             "mother": lambda subject_name, question, answer: (
@@ -91,8 +102,6 @@ class SoulSearcher:
         self.carry_out_interview(dry_run=dry_run)
 
     def carry_out_interview(self, dry_run=False):
-        model = LMSampler(self.lm)
-        breakpoint()
         analysis_question_config = self.analysis_question_config
 
         soul_searching_questions = [
@@ -126,8 +135,7 @@ class SoulSearcher:
         "both" - to have soul-searcher offer both an analysis and a follow-up question
         """
         for question in soul_searching_questions:
-            print(
-                question, q_options)
+            print(question, q_options)
             answer = input()
             if answer == "pass":
                 continue
@@ -137,18 +145,24 @@ class SoulSearcher:
             backstory = self.subject.print_backstory()
             while True:
                 # TODO pass in prompt according to analysis_question_config
-                for answer_type in self.analysis_question_config_dict[analysis_question_config]:
-                    prompt = template[answer_type](
-                        self.subject.name, question, answer)
+                for answer_type in self.analysis_question_config_dict[
+                    analysis_question_config
+                ]:
+                    prompt = template[answer_type](self.subject.name, question, answer)
                     if dry_run:
-                        gpt3_followup = "I'm a bot, and I don't know what to say."
+                        response = "I'm a bot, and I don't know what to say."
                     else:
-                        response = openai.Completion.create(
-                            engine="text-davinci-002", prompt=prompt, max_tokens=64, stop=["\n"])
-                        gpt3_followup = response.choices[0].text
-                    print(
-                        f"Prompt: {prompt}\n\n{answer_type}: {gpt3_followup}")
-                    breakpoint()
+                        response = self.model.sample_several(
+                            prompt, temperature=self.temperature, n_tokens=50
+                        )
+                        # response = openai.Completion.create(
+                        #     engine="text-davinci-002",
+                        #     prompt=prompt,
+                        #     max_tokens=64,
+                        #     stop=["\n"],
+                        # )
+                        # gpt3_followup = response.choices[0].text
+                    print(f"Prompt: {prompt}\n\n{answer_type}: {response}")
                 print(a_options)
                 messenger_input = input()
                 if messenger_input == "":
@@ -169,5 +183,7 @@ class SoulSearcher:
         print("Thanks for the interview! It was nice getting to know you!")
 
 
-if __name__=="__main__":
-    soulsearcher = SoulSearcher("biographer", lm='gpt2-xl', dry_run=True)
+if __name__ == "__main__":
+    soulsearcher = SoulSearcher(
+        "biographer", lm="gpt2-medium", bio_dry_run=True, dry_run=False
+    )
