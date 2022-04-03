@@ -11,8 +11,8 @@ from lm_gpt3 import LM_GPT3
 from lm_gpt2 import LM_GPT2
 from lm_gptj import LM_GPTJ
 from lm_gptneo import LM_GPTNEO
-from lm_bert import LM_BERT
 from lm_jurassic import LM_JURASSIC
+import datetime
 
 # from . import lmsampler_baseclass
 # from . import lm_gpt3
@@ -21,6 +21,36 @@ from lm_jurassic import LM_JURASSIC
 # from . import lm_gptneo
 # from . import lm_bert
 # from . import lm_jurassic
+def lmsamplertest():
+    prompt = "My name is"
+    #Open a text file whose title starts with test and ends with the current date.
+    with open("test" + str(datetime.date.today()) + ".txt", "w") as text_file:
+        for model_name in [
+                                'gpt2',
+                            'gpt2-medium',
+                            'gpt2-large',
+                            'gpt2-xl',
+                            'distilgpt2',
+                            'EleutherAI/gpt-j-6B',
+                            'EleutherAI/gpt-neo-2.7B',
+                            'EleutherAI/gpt-neo-1.3B',
+                            'EleutherAI/gpt-neo-125M',
+                            'j1-jumbo'             #Jurassic,
+                            'j1-large' ,
+                            'gpt3-ada',
+                            'gpt3-babbage',
+                            'gpt3-curie',
+                            'gpt3-davinci',
+                            'gpt3-text-davinci-001',
+                            'gpt3-text-davinci-002',
+                            ]:
+            model = LMSampler(model_name)
+            completion = model.sample_several(prompt, 0.7, 10)
+            completion_description = f"{model_name} wrote {completion}"
+            print(completion_description)
+            text_file.write(completion_description + "\n" + "="*50 + "\n")
+            del model
+
 
 class LMSampler(LMSamplerBaseClass):
     '''
@@ -40,7 +70,7 @@ class LMSampler(LMSamplerBaseClass):
         '''
         if model_name in ['gpt3-ada', 'gpt3-babbage', 'gpt3-curie', 'gpt3-davinci', 
                             'ada', 'babbage', 'curie', 'davinci', 
-                            'gpt-3-text-davinci-001', 'text-davinci-002',
+                            'gpt3-text-davinci-001', 'gpt3-text-davinci-002',
                             'text-davinci-001', 'text-davinci-002']:
             self.model = LM_GPT3(model_name)
         elif model_name in ['gpt2', 'gpt2-medium', 'gpt2-large', 'gpt2-xl', 'distilgpt2']:
@@ -67,8 +97,5 @@ class LMSampler(LMSamplerBaseClass):
 
 if __name__ == '__main__':
     # model_name = 'gpt3-ada'
-    model_name = 'j1-jumbo'
-    sampler = LMSampler(model_name)
-    print(sampler.sample_several('The capital of France is', temperature=0, n_tokens=10))
-    print(sampler.send_prompt('The best city in Spain is', 5))
     #print(sampler.send_prompt('In 2016, I voted for', 5))
+    lmsamplertest()

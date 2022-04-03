@@ -11,7 +11,7 @@ class LM_GPT3(LMSamplerBaseClass):
         super().__init__(model_name)
         if 'gpt3' in model_name:
             # engine is all text after 'gpt3-'
-            self.engine = model_name[6:]
+            self.engine = model_name[5:]
         else:
             self.engine = self.model_name
         # make sure engine is a valid model
