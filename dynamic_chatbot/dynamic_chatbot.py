@@ -42,7 +42,8 @@ def summarize_knowledge(interview_subject, all_knowledge):
 
 def is_question(sentence):
     prompt = ("Is this a question: \"" + sentence + "\" Answer yes or no:")
-    return prompt.lower() == "yes"
+    response = ai_interface.call_openai(prompt)
+    return response.lower() == "yes"
 
 def should_conclude_loop(interview_subject, prompt):
     prompt_continue_decision = (prompt + "\nI then decided to either choose option A, continue to ask " + interview_subject.name + " more about this, or B, move on "
