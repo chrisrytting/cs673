@@ -133,7 +133,6 @@ def soul_searching_loop():
 def run_soul_search_exchange(interview_subject, ai_transition):
     # Purpose: Iterate through all soul-searching questions, interpolating, analyzing, and coming up with new questions.
     user_response = input(colored(ai_transition + "\n", "cyan", attrs=["bold"]))
-    pass
 
 # Begin
 run_interview()
