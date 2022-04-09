@@ -25,12 +25,12 @@ soul_searching_questions = [
 ]
 
 def run_interview():
-    print("Welcome to the interview! Let's get started with some quick info about you!")
+    print("Welcome to the interview! I'm a " + template + ", and I am really excited for our chat today. Let's get started with some quick info about you!")
     interview_subject = interviewee.Interviewee()
     interview_subject.summarize_person()
     background_knowledge = run_background_exchange(interview_subject)
     ai_transition = transition_to_soul_search(background_knowledge, soul_searching_questions[0])
-    run_soul_search_exchange(interview_subject, ai_transition)
+    run_soul_search_exchange(interview_subject, ai_transition, background_knowledge)
 
 # How the AI remembers all information without running out of room in its tokens:
 # It creates a summary in 100 words or less.
@@ -73,7 +73,6 @@ def background_loop(interview_subject, previous_question, all_knowledge, respons
     if user_response2 == "exit":
         quit()
     summary = summarize_knowledge(interview_subject, all_knowledge)
-    print(colored(summary, "blue"))
     # Summary loop
     new_knowledge = (summary + "\nI asked " + interview_subject.name + " \"" + ai_response2 + "\". " + interview_subject.name + " responded, \"" + user_response2 + "\".")
     ai_response3 = simple_continue(new_knowledge)
@@ -82,7 +81,6 @@ def background_loop(interview_subject, previous_question, all_knowledge, respons
         quit()
     new_knowledge += ai_response3 + user_response3
     should_ask_more_questions = not should_conclude_loop(interview_subject, new_knowledge)
-    print(colored("Should we ask more questions? " + str(should_ask_more_questions), "green"))
     should_continue = should_ask_more_questions
     while should_continue:
         current_summary = summarize_knowledge(interview_subject, new_knowledge)
@@ -97,7 +95,6 @@ def background_loop(interview_subject, previous_question, all_knowledge, respons
             should_continue = False
             break
         should_continue = not should_conclude_loop(interview_subject, new_knowledge)
-        print(colored("Should we ask more questions? " + str(should_continue), "green"))
     return new_knowledge
 
 # Casual conversation about their background info, dynamic back-and-forth
@@ -106,13 +103,13 @@ def run_background_exchange(interview_subject):
     prompt_question = ("I'm a " + template  + ", and I'm interviewing " + interview_subject.name + " today. " + interview_subject.name + " is "
         + interview_subject.age + " years old and from " + interview_subject.where_from + " originally. They now live in " + interview_subject.residence
         + " and their occupation is " + interview_subject.occupation + ". I thought " + interview_subject.name + " was a really interesting person, and "
-        + "I wanted to know more about them and the information they gave me. Here is a question I would ask " + interview_subject.name + " next: \"")
-    generated_question1 = ai_interface.call_openai(prompt_question, "\"", 1, 1)
+        + "I wanted to know more about them and the information they gave me. Here is a new question I would ask " + interview_subject.name + " next: \"")
+    generated_question1 = ai_interface.call_openai(prompt_question, ["\"", "?"], 1, 2)
     user_response = input(colored(generated_question1 + "\n", "yellow"))
     if user_response == "exit":
         quit()
     ai_analysis = (interview_subject.name + " responded, \"" + user_response + "\". I thought that this was a great response! This is how I would respond back: \"")
-    generated_question2 = ai_interface.call_openai(prompt_question + generated_question1 + ai_analysis, "\"", 1, 1)
+    generated_question2 = ai_interface.call_openai(prompt_question + generated_question1 + ai_analysis, ["\"", "?"], 1, 2)
     user_response = input(colored(generated_question2 + "\n", "yellow"))
     if user_response == "exit":
         quit()
@@ -128,12 +125,87 @@ def transition_to_soul_search(new_knowledge, next_question):
     ai_transition = ai_interface.call_openai(transition_prompt, ["?", "\""])
     return ai_transition
 
-def soul_searching_loop():
-    pass
+def send_clarification_prompt(prompt, interview_subject):
+    clarification_prompt = (prompt + "\nI told " + interview_subject.name + ", \"")
+    clarification_response = ai_interface.call_openai(clarification_prompt, "\"")
+    return clarification_response
 
-def run_soul_search_exchange(interview_subject, ai_transition):
+def send_soul_searching_prompt(prompt, interview_subject):
+    soul_searching_prompt = (prompt + "\nI thought this was a great response! I want to search the depths of " 
+        + interview_subject.name + "'s soul, and explore what they said. This is how I would respond, not repeating what I said before: \"")
+    soul_searching_response = ai_interface.call_openai(soul_searching_prompt, ["\"", "?"], 1, 2)
+    return soul_searching_response
+
+def is_clarification_request(interview_subject, summary):
+    prompt = ("\nWas " + interview_subject.name + " (A) answering my question, or (B) asking for clarification on my question? Answer in one letter:")
+    ai_ascertaining = ai_interface.call_openai(summary + prompt)
+    return ai_ascertaining == "b" or ai_ascertaining == "B" 
+
+def transition_to_next_soul_searching_question(all_info, index, interview_subject):
+    transition_prompt = ("\nThe next question is \"" + soul_searching_questions[index] + "\" This is how I will smoothly transition from " + 
+        interview_subject.name + "'s last response to the next question, analyzing what they said too: \"")
+    ai_transition = ai_interface.call_openai(all_info + transition_prompt, ["\"", "?"])
+    return ai_transition
+
+def soul_searching_loop(interview_subject, question, response, summary, question_number):
+    background_info = ("I'm a " + template + ", and I'm interviewing " + interview_subject.name + " today. I think "
+        + interview_subject.name + " is a really interesting person, and I am enjoying this interview. " + summary
+        + "\nI asked, \"" + question + "\".\n" + interview_subject.name + " responded, \"" + response + "\".")
+    # The background info should include the most recently asked question at the end.
+    if is_clarification_request(interview_subject, background_info):
+        ai_speech = send_clarification_prompt(background_info, interview_subject)
+        user_response = input(colored(ai_speech + "\n", "red"))
+        if user_response == "exit":
+            quit()
+        all_info = (background_info + "\nI told " + interview_subject.name + ", \"" + ai_speech + "." + interview_subject.name + " responded, \"" + user_response + "\".")
+    else:
+        ai_speech = send_soul_searching_prompt(background_info, interview_subject)
+        user_response = input(colored(ai_speech + "\n", "red"))
+        if user_response == "exit":
+            quit()
+        all_info = (background_info + "\nI thought this was a great response! I want to search the depths of " 
+            + interview_subject.name + "'s soul, and explore what they said. This is how I would respond, not repeating what I said before: \"" + ai_speech + "\". "
+            + interview_subject.name + " responded, \"" + user_response + "\".")
+    counter = 0
+    while counter < 2 or not should_conclude_loop(interview_subject, all_info):
+        if is_clarification_request(interview_subject, all_info):
+            ai_speech = send_clarification_prompt(all_info, interview_subject)
+            user_response = input(colored(ai_speech + "\n", "red"))
+            if user_response == "exit":
+                quit()
+            all_info = (all_info + "\nI told " + interview_subject.name + ", \"" + ai_speech + "." + interview_subject.name + " responded, \"" + user_response + "\".")
+        else:
+            ai_speech = send_soul_searching_prompt(all_info, interview_subject)
+            user_response = input(colored(ai_speech + "\n", "red"))
+            if user_response == "exit":
+                quit()
+            all_info = (all_info + "\nI thought this was a great response! I want to search the depths of " 
+                + interview_subject.name + "'s soul, and explore what they said. This is how I would respond, not repeating what I said before: \"" + ai_speech + "\". "
+                + interview_subject.name + " responded, \"" + user_response + "\".")
+            print("all info: " + all_info)
+            # Ending on a statement
+            if not is_question(ai_speech):
+                break
+        counter += 1
+    # Next: Should transition
+    ai_transition = transition_to_next_soul_searching_question(all_info, question_number, interview_subject)
+    user_response = input(colored(ai_transition + "\n", "magenta", attrs=["bold"]))
+    if user_response == "exit":
+        quit()
+    all_info += ai_transition
+    all_info = summarize_knowledge(interview_subject, all_info)
+    return user_response, all_info, ai_transition
+
+def run_soul_search_exchange(interview_subject, ai_transition, background_knowledge):
     # Purpose: Iterate through all soul-searching questions, interpolating, analyzing, and coming up with new questions.
     user_response = input(colored(ai_transition + "\n", "cyan", attrs=["bold"]))
+    if user_response == "exit":
+        quit()
+    summary = summarize_knowledge(interview_subject, background_knowledge)
+    question_number = 0
+    while question_number < len(soul_searching_questions):
+        user_response, summary, ai_transition = soul_searching_loop(interview_subject, ai_transition, user_response, summary, question_number)
+        question_number += 1
 
 # Begin
 run_interview()
