@@ -29,7 +29,8 @@ def run_interview():
     interview_subject = interviewee.Interviewee()
     interview_subject.summarize_person()
     background_knowledge = run_background_exchange(interview_subject)
-    ai_transition = transition_to_next_soul_searching_question(background_knowledge, 0, interview_subject)
+    print(colored("\n[Thanks! Now it's time to get deep. If I repeat myself, please type \"regenerate\" for a new question.]\n", "yellow", attrs=["bold"]))
+    ai_transition = transition_to_next_soul_searching_question2(background_knowledge, 0, interview_subject)
     summary = run_soul_search_exchange(interview_subject, ai_transition, background_knowledge)
     print(colored(run_conclusion(interview_subject, summary), "green"))
 
@@ -56,6 +57,13 @@ def should_conclude_loop(interview_subject, prompt):
 def simple_continue(prompt):
     prompt += ("\nI thought that this was a great response! This is how I would respond back to continue the interview: \"")
     to_return = ai_interface.call_openai(prompt, ["\"", "?"], 1, 2)
+    if to_return[len(to_return) - 1] != "." and to_return[len(to_return) - 1] != "!":
+        to_return += "?"
+    return to_return
+
+def simple_continue_no_repeat(prompt):
+    prompt += ("\nI thought that this was a great response! This is how I would respond back to continue the interview, asking a NEW question, staying on-topic, and not repeating anything: \"")
+    to_return = ai_interface.call_openai(prompt, ["\"", "?"], 2, 2)
     if to_return[len(to_return) - 1] != "." and to_return[len(to_return) - 1] != "!":
         to_return += "?"
     return to_return
@@ -135,14 +143,13 @@ def is_clarification_request(interview_subject, summary):
     ai_ascertaining = ai_interface.call_openai(summary + prompt)
     return ai_ascertaining == "b" or ai_ascertaining == "B" 
 
-def transition_to_next_soul_searching_question(all_info, index, interview_subject):
-    transition_prompt = ("\nThe next question is \"" + soul_searching_questions[index] + "\". This is how I will smoothly transition from " + 
-        interview_subject.name + "'s last response to the next question, in 1 sentence, also analyzing what they said: \"")
+def transition_to_next_soul_searching_question2(all_info, index, interview_subject):
+    transition_prompt = ("\nThe next question is \"" + soul_searching_questions[index] + "\". This is how I will transition smoothly from " + interview_subject.name + "'s last response into the next question in 1-2 sentences " +
+        "and analyze what they said, not repeating anything, staying on-topic, and addressing them directly: \"")
     ai_transition = ai_interface.call_openai(all_info + transition_prompt, ["\"", "?"], 2, 2)
     return ai_transition
 
 def soul_searching_loop(interview_subject, question, response, summary, question_number):
-    print("Asking question number " + str(question_number))
     background_info = ("I'm a " + template + ", and I'm interviewing " + interview_subject.name + " today. I think "
         + interview_subject.name + " is a really interesting person, and I am enjoying this interview. " + summary
         + "\nI asked, \"" + question + "\".\n" + interview_subject.name + " responded, \"" + response + "\".")
@@ -152,13 +159,18 @@ def soul_searching_loop(interview_subject, question, response, summary, question
         user_response = input(colored(ai_speech + "\n", "red"))
         if user_response == "exit":
             quit()
+        while user_response == "regenerate":
+            ai_speech = send_clarification_prompt(background_info, interview_subject)
+            user_response = input(colored(ai_speech + "\n", "red"))
         all_info = (background_info + "\nI told " + interview_subject.name + ", \"" + ai_speech + "." + interview_subject.name + " responded, \"" + user_response + "\".")
     else:
-        # print("First soul-searcher follow-up")
         ai_speech = send_soul_searching_prompt(background_info, interview_subject)
         user_response = input(colored(ai_speech + "\n", "red"))
         if user_response == "exit":
             quit()
+        while user_response == "regenerate":
+            ai_speech = send_soul_searching_prompt(background_info, interview_subject)
+            user_response = input(colored(ai_speech + "\n", "red"))
         all_info = (background_info + "\nI thought this was a great response! I want to search the depths of " 
             + interview_subject.name + "'s soul, and explore what they said. This is how I would respond, not repeating what I said before: \"" + ai_speech + "\".\n"
             + interview_subject.name + " responded, \"" + user_response + "\".")
@@ -169,23 +181,37 @@ def soul_searching_loop(interview_subject, question, response, summary, question
             user_response = input(colored(ai_speech + "\n", "red"))
             if user_response == "exit":
                 quit()
+            while user_response == "regenerate":
+                ai_speech = send_clarification_prompt(all_info, interview_subject)
+                user_response = input(colored(ai_speech + "\n", "red"))
             all_info = (all_info + "\nI told " + interview_subject.name + ", \"" + ai_speech + ". " + interview_subject.name + " responded, \"" + user_response + "\".")
         else:
-            ai_speech = simple_continue(all_info)
+            ai_speech = simple_continue_no_repeat(all_info)
             user_response = input(colored(ai_speech + "\n", "red"))
             if user_response == "exit":
                 quit()
+            while user_response == "regenerate":
+                ai_speech = simple_continue_no_repeat(all_info)
+                user_response = input(colored(ai_speech + "\n", "red"))
             all_info += ("\nI asked " + interview_subject.name + ", \"" + ai_speech + "\". " + interview_subject.name + " responded, \"" + 
-                "\".\nI thought that this was a great response! This is how I would respond back to continue the interview: \"")
+                "\".\nI thought that this was a great response! This is how I would respond back to continue the interview, asking a NEW question, staying on-topic, and not repeating anything: \"")
             # Ending on a statement
             if not is_question(ai_speech):
                 break
         counter += 1
-    # Next: Should transition
-    ai_transition = transition_to_next_soul_searching_question(all_info, question_number, interview_subject)
+    # If last question, do not transition
+    if question_number == len(soul_searching_questions):
+        return user_response, all_info, ""
+    # Otherwise: Should transition
+    ai_transition = transition_to_next_soul_searching_question2(all_info, question_number, interview_subject)
     user_response = input(colored(ai_transition + "\n", "magenta", attrs=["bold"]))
     if user_response == "exit":
         quit()
+    while user_response == "regenerate":
+        ai_transition = transition_to_next_soul_searching_question2(all_info, question_number, interview_subject)
+        user_response = input(colored(ai_transition + "\n", "magenta", attrs=["bold"]))
+    all_info += ("The next question is \"" + soul_searching_questions[question_number] + "\". This is how I will transition smoothly from " + interview_subject.name + 
+        "'s last response into the next question and analyze what they said, not repeating anything, staying on-topic, and addressing them directly: \"")
     all_info += ai_transition
     all_info = summarize_knowledge(interview_subject, all_info)
     return user_response, all_info, ai_transition
@@ -195,9 +221,12 @@ def run_soul_search_exchange(interview_subject, ai_transition, background_knowle
     user_response = input(colored(ai_transition + "\n", "cyan", attrs=["bold"]))
     if user_response == "exit":
         quit()
+    while user_response == "regenerate":
+        ai_transition = send_clarification_prompt(background_knowledge, interview_subject)
+        user_response = input(colored(ai_transition + "\n", "cyan", attrs=["bold"]))
     summary = summarize_knowledge(interview_subject, background_knowledge)
     question_number = 1
-    while question_number < len(soul_searching_questions):
+    while question_number <= len(soul_searching_questions):
         user_response, summary, ai_transition = soul_searching_loop(interview_subject, ai_transition, user_response, summary, question_number)
         question_number += 1
     return summary
