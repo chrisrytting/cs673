@@ -2,6 +2,7 @@ import os
 from lmsampler import LMSampler
 from subject import Subject
 from pdb import set_trace as breakpoint
+import pandas as pd
 
 
 class SoulSearcher:
@@ -14,6 +15,7 @@ class SoulSearcher:
         bio_dry_run=False,
         dry_run=False,
         analysis_question_config="both",
+        evaluation=False,
     ):
         """
         interviewer_style: str - which persona SoulSearcher uses to analyze/question the subject
@@ -46,7 +48,7 @@ class SoulSearcher:
         dry_run: bool - whether to use the real model or not
         """
         self.model = LMSampler(lm)
-        self.subject = Subject(dry_run=bio_dry_run)
+        self.subject = Subject(dry_run=bio_dry_run, evaluation=evaluation)
         self.temperature = temperature
 
         self.analysis_question_config = analysis_question_config
@@ -134,7 +136,7 @@ class SoulSearcher:
         if interviewer_style not in self.templates:
             raise ValueError("Interviewer style not found")
         self.interviewer_style = interviewer_style
-        self.carry_out_interview(dry_run=dry_run)
+        self.carry_out_interview(dry_run=dry_run, evaluation=evaluation)
 
     def carry_out_interview(self, dry_run=False, evaluation=False):
         analysis_question_config = self.analysis_question_config
@@ -177,8 +179,9 @@ class SoulSearcher:
         if evaluation:
             templates = list(self.templates.keys())
         else:
-            templates = [self.templates[self.interviewer_style]]
-        conversation = []
+            templates = [self.interviewer_style]
+        conversation_str = ""
+        conversations_dict = {}
 
         # Options to present to messenger/subject after soul-searcher has asked a question
         q_options = """
@@ -196,6 +199,7 @@ class SoulSearcher:
         "question" - to force soul-searcher to offer a follow-up question instead of offering an analysis
         "both" - to have soul-searcher offer both an analysis and a follow-up question
         """
+        turns_df = pd.DataFrame()
         for template in templates:
             for ix, question in enumerate(soul_searching_questions):
                 print(question, q_options)
@@ -207,25 +211,45 @@ class SoulSearcher:
                         continue
                     elif answer == "end":
                         break
-                conversation.append((question, answer))
+                turns_dict = {
+                    "template": template,
+                    "question": question,
+                    "answer": answer,
+                }
                 backstory = self.subject.print_backstory()
+                analysis = ""
+                fupquestion = ""
                 while True:
                     # TODO pass in prompt according to analysis_question_config
                     for answer_type in self.analysis_question_config_dict[
                         analysis_question_config
                     ]:
-                        prompt = backstory + '\n\n' + \
-                            template[answer_type](
-                                self.subject.name, question, answer)
+
+                        prompt = (
+                            backstory
+                            + "\n\n"
+                            + self.templates[template][answer_type](
+                                self.subject.name, question, answer
+                            )
+                        )
                         if dry_run:
                             response = "I'm a bot, and I don't know what to say."
                         else:
+                            print("Hmm...")
                             response = self.model.sample_several(
                                 prompt,
                                 temperature=self.temperature,
                                 n_tokens=50,
                                 # stop_tokens=["\n"],
                             )
+                            if answer_type == "analysis":
+                                analysis = f"Interviewer (analysis): {response}"
+                                turns_dict["analysis"] = analysis
+                            elif answer_type == "question":
+                                fupquestion = f"Interviewer (question): {response}"
+                                turns_dict["followup_question"] = fupquestion
+                            else:
+                                raise ValueError("Answer type not found")
                             # response = openai.Completion.create(
                             #     engine="text-davinci-002",
                             #     prompt=prompt,
@@ -233,10 +257,17 @@ class SoulSearcher:
                             #     stop=["\n"],
                             # )
                             # gpt3_followup = response.choices[0].text
+
                         print(f"Prompt: {prompt}\n\n{answer_type}: {response}")
                     print(a_options)
-                    messenger_input = input()
+                    if evaluation:
+                        messenger_input = ""
+                    else:
+                        messenger_input = input()
+
                     if messenger_input == "":
+                        # conversation_str += f"Interviewer: {question}\nSubject:{answer}\n{analysis}\n{fupquestion}\n\n"
+                        turns_df = turns_df.append(turns_dict, ignore_index=True)
                         break
                     elif messenger_input == "again":
                         continue
@@ -251,10 +282,19 @@ class SoulSearcher:
                         continue
                 print("_______________________________\n")
 
+            conversations_dict[template] = conversation_str
             print("Thanks for the interview! It was nice getting to know you!")
+        try:
+            # df = pd.DataFrame(
+            #     conversations_dict.items(), columns=["template", "conversation"]
+            # )
+            turns_df.to_csv("conversation_turns.csv")
+        except Exception as e:
+            breakpoint()
+        pd.to_csv(conversations_dict, "conversations.csv")
 
 
 if __name__ == "__main__":
     soulsearcher = SoulSearcher(
-        "biographer", lm="gpt3-text-davinci-002", bio_dry_run=False, dry_run=False
+        "biographer", lm="gpt3-text-davinci-002", evaluation=True
     )

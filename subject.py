@@ -1,14 +1,14 @@
 class Subject:
     """Class for getting to know the subject's background info"""
 
-    def __init__(self, dry_run=False):
-        if dry_run:
+    def __init__(self, dry_run=False, evaluation=False):
+        if dry_run or evaluation:
             self.name = "Chris"
             self.origin = "Orem"
             self.age = "30"
             self.residence = "New York"
             self.occupation = "Software Engineer"
-            print("\nDoing a dry run. Auto-populating background info.")
+            print("\nDoing a dry run or evaluation. Auto-populating background info.")
         else:
             print("What is your name?")
             self.name = input()
