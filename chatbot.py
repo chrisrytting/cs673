@@ -71,14 +71,14 @@ class SoulSearcher:
             },
             "mother": {
                 "analysis": lambda subject_name, question, answer: (
-                f"I'm {subject_name}'s mother, and when I asked them "
-                f"'{question}', they told me '{answer}'. "
-                f"When I heard that, I wanted to tell them"
+                    f"I'm {subject_name}'s mother, and when I asked them "
+                    f"'{question}', they told me '{answer}'. "
+                    f"When I heard that, I wanted to tell them"
                 ),
                 "question": lambda subject_name, question, answer: (
-                f"I'm {subject_name}'s mother, and when I asked them "
-                f"'{question}', they told me '{answer}'. "
-                f'When I heard that, I wanted to ask them the question "'
+                    f"I'm {subject_name}'s mother, and when I asked them "
+                    f"'{question}', they told me '{answer}'. "
+                    f'When I heard that, I wanted to ask them the question "'
                 ),
             },
             "journalist": {
@@ -107,26 +107,26 @@ class SoulSearcher:
             },
             "manager": {
                 "analysis": lambda subject_name, question, answer: (
-                f"I'm {subject_name}'s manager, and when I asked them "
-                f"'{question}', they told me '{answer}'. "
-                f"When I heard that, I wanted to tell them"
+                    f"I'm {subject_name}'s manager, and when I asked them "
+                    f"'{question}', they told me '{answer}'. "
+                    f"When I heard that, I wanted to tell them"
                 ),
                 "question": lambda subject_name, question, answer: (
-                f"I'm {subject_name}'s manager, and when I asked them "
-                f"'{question}', they told me '{answer}'. "
-                f'When I heard that, I wanted to ask them the question "'
+                    f"I'm {subject_name}'s manager, and when I asked them "
+                    f"'{question}', they told me '{answer}'. "
+                    f'When I heard that, I wanted to ask them the question "'
                 ),
             },
             "grandfather": {
                 "analysis": lambda subject_name, question, answer: (
-                f"I'm {subject_name}'s grandfather, and when I asked them "
-                f"'{question}', they told me '{answer}'. "
-                f"When I heard that, I wanted to tell them"
+                    f"I'm {subject_name}'s grandfather, and when I asked them "
+                    f"'{question}', they told me '{answer}'. "
+                    f"When I heard that, I wanted to tell them"
                 ),
                 "question": lambda subject_name, question, answer: (
-                f"I'm {subject_name}'s grandfather, and when I asked them "
-                f"'{question}', they told me '{answer}'. "
-                f'When I heard that, I wanted to ask them the question "'
+                    f"I'm {subject_name}'s grandfather, and when I asked them "
+                    f"'{question}', they told me '{answer}'. "
+                    f'When I heard that, I wanted to ask them the question "'
                 ),
             },
         }
@@ -174,10 +174,10 @@ class SoulSearcher:
             "I felt like everything changed that day.",
         ]
 
-
-
-
-        template = self.templates[self.interviewer_style]
+        if evaluation:
+            templates = list(self.templates.keys())
+        else:
+            templates = [self.templates[self.interviewer_style]]
         conversation = []
 
         # Options to present to messenger/subject after soul-searcher has asked a question
@@ -196,59 +196,62 @@ class SoulSearcher:
         "question" - to force soul-searcher to offer a follow-up question instead of offering an analysis
         "both" - to have soul-searcher offer both an analysis and a follow-up question
         """
-        for ix, question in enumerate(soul_searching_questions):
-            print(question, q_options)
-            if evaluation:
-                answer = soul_searching_answers_evaluation[ix]
-            else:
-                answer = input()
-                if answer == "pass":
-                    continue
-                elif answer == "end":
-                    break
-            conversation.append((question, answer))
-            backstory = self.subject.print_backstory()
-            while True:
-                # TODO pass in prompt according to analysis_question_config
-                for answer_type in self.analysis_question_config_dict[
-                    analysis_question_config
-                ]:
-                    prompt = backstory + '\n\n' + template[answer_type](self.subject.name, question, answer)
-                    if dry_run:
-                        response = "I'm a bot, and I don't know what to say."
-                    else:
-                        response = self.model.sample_several(
-                            prompt,
-                            temperature=self.temperature,
-                            n_tokens=50,
-                            # stop_tokens=["\n"],
-                        )
-                        # response = openai.Completion.create(
-                        #     engine="text-davinci-002",
-                        #     prompt=prompt,
-                        #     max_tokens=64,
-                        #     stop=["\n"],
-                        # )
-                        # gpt3_followup = response.choices[0].text
-                    print(f"Prompt: {prompt}\n\n{answer_type}: {response}")
-                print(a_options)
-                messenger_input = input()
-                if messenger_input == "":
-                    break
-                elif messenger_input == "again":
-                    continue
-                elif messenger_input == "analysis":
-                    analysis_question_config = "analysis"
-                    continue
-                elif messenger_input == "question":
-                    analysis_question_config = "question"
-                    continue
-                elif messenger_input == "both":
-                    analysis_question_config = "both"
-                    continue
-            print("_______________________________\n")
+        for template in templates:
+            for ix, question in enumerate(soul_searching_questions):
+                print(question, q_options)
+                if evaluation:
+                    answer = soul_searching_answers_evaluation[ix]
+                else:
+                    answer = input()
+                    if answer == "pass":
+                        continue
+                    elif answer == "end":
+                        break
+                conversation.append((question, answer))
+                backstory = self.subject.print_backstory()
+                while True:
+                    # TODO pass in prompt according to analysis_question_config
+                    for answer_type in self.analysis_question_config_dict[
+                        analysis_question_config
+                    ]:
+                        prompt = backstory + '\n\n' + \
+                            template[answer_type](
+                                self.subject.name, question, answer)
+                        if dry_run:
+                            response = "I'm a bot, and I don't know what to say."
+                        else:
+                            response = self.model.sample_several(
+                                prompt,
+                                temperature=self.temperature,
+                                n_tokens=50,
+                                # stop_tokens=["\n"],
+                            )
+                            # response = openai.Completion.create(
+                            #     engine="text-davinci-002",
+                            #     prompt=prompt,
+                            #     max_tokens=64,
+                            #     stop=["\n"],
+                            # )
+                            # gpt3_followup = response.choices[0].text
+                        print(f"Prompt: {prompt}\n\n{answer_type}: {response}")
+                    print(a_options)
+                    messenger_input = input()
+                    if messenger_input == "":
+                        break
+                    elif messenger_input == "again":
+                        continue
+                    elif messenger_input == "analysis":
+                        analysis_question_config = "analysis"
+                        continue
+                    elif messenger_input == "question":
+                        analysis_question_config = "question"
+                        continue
+                    elif messenger_input == "both":
+                        analysis_question_config = "both"
+                        continue
+                print("_______________________________\n")
 
-        print("Thanks for the interview! It was nice getting to know you!")
+            print("Thanks for the interview! It was nice getting to know you!")
 
 
 if __name__ == "__main__":
