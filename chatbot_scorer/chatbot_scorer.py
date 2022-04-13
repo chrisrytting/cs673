@@ -83,6 +83,9 @@ def get_csv_reader(file_name):
 def close_file(file):
     file.close()
 
+def print_cli_error():
+    print(colored("ERROR: Requires 1 CLI string argument (location of the CSV you want to open). Please try again.", "red"))
+
 # Purpose: Scoring the chatbot using a specially formatted CSV with the exported data (generated from chatbot.py).
 def run_scorer():
     print(colored("Welcome to the chatbot scorer! Type q to quit at any point.\n", "cyan", attrs=["bold"]))
@@ -95,7 +98,7 @@ def run_scorer():
         score_rows(rows, writer, file)
         close_file(file)
     else:
-        print(colored("ERROR: Requires 1 CLI string argument (location of the CSV you want to open). Please try again.", "red"))
+        print_cli_error()
         quit()
 
 run_scorer()
