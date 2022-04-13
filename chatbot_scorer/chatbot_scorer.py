@@ -8,7 +8,7 @@ def print_blank_line():
     print(colored("_" * term_size.columns, "blue"), "\n")
 
 def print_invalid_score_message():
-    print(colored("ERROR: Please enter a number between 1 and 5, or q to quit", "red"))
+    print(colored("ERROR: Please enter a number between 0 and 5, or q to quit", "red"))
 
 def score_invalid(analysis_score):
     return not analysis_score.isnumeric() or (analysis_score.isnumeric() and (int(analysis_score) < 0 or int(analysis_score) > 5))
