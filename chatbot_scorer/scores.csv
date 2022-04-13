@@ -1,0 +1,6 @@
+template,question,answer,analysis,followup_question,Analysis Score: Novelty,Analysis Score: Relevance,Analysis Score: Understanding,Analysis Score: Thought-Provocation,Follow-Up Score: Novelty,Follow-Up Score: Relevance,Follow-Up Score: Understanding,Follow-Up Score: Thought-Provocation
+biographer,What do you like to do for fun?,"I like to make furniture. I find it very relaxing, very therapeutic, to work with my hands and to make something that exists in the physical world.","Interviewer (analysis):  that I used to make furniture too, but I didn't want to interrupt.
+
+Chris told me that they started making furniture when they were in college, and they really enjoyed it. They said that it was a great way to relax, and","Interviewer (question): How did you get into furniture making?""
+
+Chris told me that they got into furniture making about 5 years ago, when they were living in San Francisco. They were working as a software engineer at the time, and they were finding that their job",4,3,4,5,5,4,5,4
