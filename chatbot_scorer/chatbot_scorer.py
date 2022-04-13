@@ -55,6 +55,8 @@ def score_row(row, writer, file):
         follow_up_score = input(colored("Score this follow-up-question (0-5): ", "red"))
         check_quit(follow_up_score, file)
         check_validity(follow_up_score)
+    
+    # Post-Process
     print_blank_line()
     save_data(analysis_score, follow_up_score, row, writer)
 
@@ -96,6 +98,7 @@ def run_scorer():
         rows = read_csv_file(csv_reader)
         writer, file = get_csv_writer()
         score_rows(rows, writer, file)
+        # Cleanup
         close_file(file)
     else:
         print_cli_error()
