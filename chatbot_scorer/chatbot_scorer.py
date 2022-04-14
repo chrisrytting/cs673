@@ -124,7 +124,7 @@ def score_rows(rows, writer, file):
         score_row(row, writer, file)
 
 def get_csv_writer():
-    file = open("scores.csv", "w")
+    file = open("scores.csv", "w", newline="")
     return csv.writer(file), file
 
 def read_csv_file(csv_reader):
