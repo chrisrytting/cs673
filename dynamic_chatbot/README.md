@@ -4,4 +4,4 @@ The purpose of this version of the chatbot is to provide an autonomous conversat
 
 ## Diagram
 
-![Diagram](https://github.com/chrisrytting/cs673/blob/master/dynamic_chatbot/diagram.png?raw=true)
+<center>![Diagram](https://github.com/chrisrytting/cs673/blob/master/dynamic_chatbot/diagram.png?raw=true)</center>
