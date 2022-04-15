@@ -5,10 +5,8 @@ import openai
 openai.api_key = os.environ["OPENAI_API_KEY"]
 restart_sequence = "\nHuman: "
 
-interviewers = {'Journalist': ['personal growth', 'career', 'career path', 'development', 'award', 'achievement', 'scandal'],
+interviewers = {'Journalist': ['personal growth', 'career', 'career path', 'development', 'award', 'achievement', 'scandal', 'identity'],
                 'Parent': ['family', 'friendship', 'kinship', 'love', 'growth', 'anger', 'education'],
-                'Doctor': ['education', 'science', 'degree'],
-                'Criminal': ['law', 'outlaw', 'crime', 'evil', 'supression', 'hate'],
                 'Custom': []
                 }
 
@@ -47,9 +45,9 @@ def cleanResponse(response):
 
 def startInterview(personality, interests):
 
-    # starterInfo = input("What is the most interesting thing about you?\n")
-    starterInfo = 'I like to play video games.'
-    # prompt = "The following is a conversation with a " + personality + ". The " + personality +  " stir the conversation towards "
+    starterInfo = input("What is the most interesting thing about you?\n")
+    print('\n')
+    
     prompt = "The following is a conversation with a " + personality + ". The conversation is centered on "
 
     for i in range(len(interests)):
@@ -70,10 +68,10 @@ def startInterview(personality, interests):
             engine="text-davinci-002",
             prompt=prompt,
             temperature=1,
-            max_tokens=1000,
+            max_tokens=100,
             top_p=1,
             frequency_penalty=2,
-            presence_penalty=0.8,
+            presence_penalty=0.6,
             stop=["Human:"]
         )
         
