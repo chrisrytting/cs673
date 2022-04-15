@@ -22,7 +22,7 @@ class Subject:
             self.occupation = input()
 
         print(
-            "\n\nGreat, that's all really helpful to know. Let's get started on the interview!\n\n"
+            "\nGreat, that's all really helpful to know. Let's get started on the interview!\n"
         )
 
     def print_backstory(self):

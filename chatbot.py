@@ -16,6 +16,7 @@ class SoulSearcher:
         dry_run=False,
         analysis_question_config="both",
         evaluation=False,
+        print_prompt=False,
     ):
         """
         interviewer_style: str - which persona SoulSearcher uses to analyze/question the subject
@@ -50,14 +51,21 @@ class SoulSearcher:
         self.model = LMSampler(lm)
         self.subject = Subject(dry_run=bio_dry_run, evaluation=evaluation)
         self.temperature = temperature
-
         self.analysis_question_config = analysis_question_config
         self.analysis_question_config_dict = {
             "analysis": ["analysis"],
             "question": ["question"],
             "both": ["analysis", "question"],
         }
+        self._init_templates()
+        if interviewer_style not in self.templates:
+            raise ValueError("Interviewer style not found")
+        self.interviewer_style = interviewer_style
+        self._carry_out_interview(
+            dry_run=dry_run, evaluation=evaluation, print_prompt=print_prompt
+        )
 
+    def _init_templates(self):
         self.templates = {
             "biographer": {
                 "analysis": lambda subject_name, question, answer: (
@@ -133,12 +141,7 @@ class SoulSearcher:
             },
         }
 
-        if interviewer_style not in self.templates:
-            raise ValueError("Interviewer style not found")
-        self.interviewer_style = interviewer_style
-        self.carry_out_interview(dry_run=dry_run, evaluation=evaluation)
-
-    def carry_out_interview(self, dry_run=False, evaluation=False):
+    def _carry_out_interview(self, dry_run=False, evaluation=False, print_prompt=False):
         analysis_question_config = self.analysis_question_config
 
         soul_searching_questions = [
@@ -258,7 +261,10 @@ class SoulSearcher:
                             # )
                             # gpt3_followup = response.choices[0].text
 
-                        print(f"Prompt: {prompt}\n\n{answer_type}: {response}")
+                        if print_prompt:
+                            print(f"\nPrompt: {prompt}\n\n{answer_type}: {response}")
+                        else:
+                            print(f"\n{answer_type}: {response}")
                     print(a_options)
                     if evaluation:
                         messenger_input = ""
@@ -296,5 +302,10 @@ class SoulSearcher:
 
 if __name__ == "__main__":
     soulsearcher = SoulSearcher(
-        "biographer", lm="gpt3-text-davinci-002", evaluation=True
+        "biographer",
+        lm="EleutherAI/gpt-j-6B",
+        dry_run=False,
+        bio_dry_run=True,
+        evaluation=False,
+        print_prompt=True,
     )
