@@ -314,5 +314,5 @@ if __name__ == "__main__":
         bio_dry_run=False,
         evaluation=False,
         temperature=args.temperature,
-        print_prompt=True,
+        print_prompt=False,
     )
