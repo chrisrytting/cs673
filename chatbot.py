@@ -301,11 +301,18 @@ class SoulSearcher:
 
 
 if __name__ == "__main__":
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--model", type=str, default="gpt2")
+    parser.add_argument("--temperature", type=float, default=0.7)
+    args = parser.parse_args()
     soulsearcher = SoulSearcher(
         "biographer",
-        lm="EleutherAI/gpt-j-6B",
+        lm=args.model,
         dry_run=False,
-        bio_dry_run=True,
+        bio_dry_run=False,
         evaluation=False,
+        temperature=args.temperature,
         print_prompt=True,
     )
